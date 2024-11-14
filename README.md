@@ -23,6 +23,10 @@ This is a Telegram bot for managing referrals, UPI giveaways, and user engagemen
    ```
    python init_shop.py
    ```
+7. Initialize the quests by running:
+   ```
+   python init_quests.py
+   ```
 
 ## Running the Bot
 
@@ -42,7 +46,8 @@ python main.py
 - User levels and XP
 - Simple mini-game
 - User profiles
-- Shop system with inventory
+- Shop system with inventory and item effects
+- Daily quest system
 
 ## Admin Commands
 
@@ -65,6 +70,8 @@ python main.py
 - `/profile`: View your user profile and inventory
 - `/shop`: Browse available items in the shop
 - `/buy <item_id>`: Purchase an item from the shop
+- `/quests`: View daily quests
+- `/complete_quest <quest_id>`: Complete a daily quest
 
 ## Contributing
 
