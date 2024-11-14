@@ -5,7 +5,7 @@ from database import (
     get_user, create_user, update_user_balance, 
     get_user_referrals, get_leaderboard, update_user_bonus_claim,
     add_xp, get_tasks, complete_task, get_shop_items, purchase_item, get_user_inventory,
-    get_daily_quests, complete_quest, update_quest_progress
+    get_daily_quests, complete_quest
 )
 from utils import check_user_joined_channels, generate_referral_link
 from datetime import datetime, timedelta
@@ -23,7 +23,6 @@ def register_handlers(app):
                 referrer = get_user(int(referrer_id))
                 if referrer:
                     update_user_balance(referrer['user_id'], referrer['balance'] + REFERRAL_BONUS)
-                    update_quest_progress(referrer['user_id'], 'referral', 1)
             
             create_user(user_id)
             user = get_user(user_id)
@@ -92,7 +91,6 @@ def register_handlers(app):
         item_id = message.text.split()[-1]
         
         if purchase_item(user_id, item_id):
-            update_quest_progress(user_id, 'purchase', 1)
             await message.reply_text("Item purchased successfully! Check your inventory with /profile")
         else:
             await message.reply_text("Purchase failed. Make sure you have enough balance and the item ID is correct.")
@@ -104,39 +102,23 @@ def register_handlers(app):
         
         quests_text = "📋 Daily Quests:\n\n"
         for quest in quests:
-            progress = quest.get('progress', 0)
             quests_text += f"🎯 {quest['name']}\n"
             quests_text += f"   {quest['description']}\n"
-            quests_text += f"   Progress: {progress}/{quest['goal']}\n"
             quests_text += f"   Reward: ₹{quest['reward']}\n\n"
         
-        quests_text += "Quests are automatically completed when you reach the goal."
+        quests_text += "Complete a quest using /complete_quest <quest_id>"
         await message.reply_text(quests_text)
 
-    @app.on_message(filters.command("play"))
-    async def play_game_command(client, message):
+    @app.on_message(filters.command("complete_quest"))
+    async def complete_quest_command(client, message):
         user_id = message.from_user.id
-        user = get_user(user_id)
+        quest_id = message.text.split()[-1]
         
-        # Simple number guessing game
-        number = random.randint(1, 10)
-        await message.reply_text("I'm thinking of a number between 1 and 10. Can you guess it?")
-        
-        @app.on_message(filters.user(user_id) & filters.text)
-        async def guess_handler(client, message):
-            try:
-                guess = int(message.text)
-                if guess == number:
-                    reward = random.randint(1, 5)
-                    new_balance = user['balance'] + reward
-                    update_user_balance(user_id, new_balance)
-                    new_level = add_xp(user_id, 10)
-                    update_quest_progress(user_id, 'game_win', 1)
-                    await message.reply_text(f"Congratulations! You guessed correctly.\nYou've won ₹{reward} and 10 XP!\nYour new level is: {new_level}")
-                else:
-                    await message.reply_text(f"Sorry, that's not correct. The number was {number}. Try again!")
-                app.remove_handler(guess_handler)
-            except ValueError:
-                await message.reply_text("Please enter a valid number between 1 and 10.")
+        if complete_quest(user_id, quest_id):
+            await message.reply_text("Quest completed successfully! Your reward has been added to your balance.")
+        else:
+            await message.reply_text("Failed to complete the quest. Make sure the quest ID is correct and you haven't already completed it.")
+
+    # ... (keep all other existing handlers)
 
     # Add more handlers as needed
