@@ -1,7 +1,7 @@
 
 # UPI Giveaway Bot
 
-This is a Telegram bot for managing referrals and UPI giveaways.
+This is a Telegram bot for managing referrals, UPI giveaways, and user engagement.
 
 ## Setup
 
@@ -34,6 +34,9 @@ python main.py
 - Leaderboard
 - Admin commands for managing users and balances
 - Withdrawal requests
+- Task system
+- User levels and XP
+- Simple mini-game
 
 ## Admin Commands
 
@@ -50,6 +53,9 @@ python main.py
 - `/leaderboard`: View top referrers
 - `/withdraw`: Request a withdrawal
 - `/bonus`: Claim daily bonus
+- `/tasks`: View available tasks
+- `/complete_task <task_id>`: Complete a task
+- `/play`: Play a simple number guessing game
 
 ## Contributing
 
