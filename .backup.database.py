@@ -6,7 +6,6 @@ from config import MONGO_URI
 client = MongoClient(MONGO_URI)
 db = client['refer_earn_bot']
 users_collection = db['users']
-tasks_collection = db['tasks']
 
 def get_user(user_id):
     return users_collection.find_one({'user_id': user_id})
@@ -18,10 +17,7 @@ def create_user(user_id):
         'referrals': [],
         'joined_date': datetime.now(),
         'last_bonus_claim': None,
-        'consecutive_bonus_days': 0,
-        'level': 1,
-        'xp': 0,
-        'completed_tasks': []
+        'consecutive_bonus_days': 0
     }
     users_collection.insert_one(user)
 
@@ -53,32 +49,6 @@ def update_user_bonus_claim(user_id, bonus_amount):
             },
             '$inc': {'balance': bonus_amount}
         }
-    )
-
-def add_xp(user_id, xp_amount):
-    user = users_collection.find_one_and_update(
-        {'user_id': user_id},
-        {'$inc': {'xp': xp_amount}},
-        return_document=True
-    )
-    
-    # Check if user should level up
-    new_level = (user['xp'] // 100) + 1  # Level up every 100 XP
-    if new_level > user['level']:
-        users_collection.update_one(
-            {'user_id': user_id},
-            {'$set': {'level': new_level}}
-        )
-    
-    return new_level
-
-def get_tasks():
-    return list(tasks_collection.find())
-
-def complete_task(user_id, task_id):
-    users_collection.update_one(
-        {'user_id': user_id},
-        {'$addToSet': {'completed_tasks': task_id}}
     )
 
 # Add more database operations as needed
