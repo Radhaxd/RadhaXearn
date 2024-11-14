@@ -19,6 +19,10 @@ This is a Telegram bot for managing referrals, UPI giveaways, and user engagemen
    ```
 4. Replace the placeholder values in the `.env` file with your actual credentials
 5. Update the `ADMIN_USER_IDS` and `REQUIRED_CHANNELS` in `config.py`
+6. Initialize the shop by running:
+   ```
+   python init_shop.py
+   ```
 
 ## Running the Bot
 
