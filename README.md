@@ -37,6 +37,8 @@ python main.py
 - Task system
 - User levels and XP
 - Simple mini-game
+- User profiles
+- Shop system with inventory
 
 ## Admin Commands
 
@@ -56,6 +58,9 @@ python main.py
 - `/tasks`: View available tasks
 - `/complete_task <task_id>`: Complete a task
 - `/play`: Play a simple number guessing game
+- `/profile`: View your user profile and inventory
+- `/shop`: Browse available items in the shop
+- `/buy <item_id>`: Purchase an item from the shop
 
 ## Contributing
 
