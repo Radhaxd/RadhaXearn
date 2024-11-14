@@ -4,8 +4,7 @@ from config import REFERRAL_BONUS, MINIMUM_WITHDRAWAL
 from database import (
     get_user, create_user, update_user_balance, 
     get_user_referrals, get_leaderboard, update_user_bonus_claim,
-    add_xp, get_tasks, complete_task, get_shop_items, purchase_item, get_user_inventory,
-    get_daily_quests, complete_quest
+    add_xp, get_tasks, complete_task, get_shop_items, purchase_item, get_user_inventory
 )
 from utils import check_user_joined_channels, generate_referral_link
 from datetime import datetime, timedelta
@@ -66,10 +65,6 @@ def register_handlers(app):
         else:
             profile_text += "Your inventory is empty.\n"
         
-        profile_text += "\n🔮 Active Effects:\n"
-        for effect, value in user['active_effects'].items():
-            profile_text += f"- {effect}: {value}\n"
-        
         await message.reply_text(profile_text)
 
     @app.on_message(filters.command("shop"))
@@ -79,8 +74,7 @@ def register_handlers(app):
         
         for item in shop_items:
             shop_text += f"🏷️ {item['name']} - ₹{item['price']}\n"
-            shop_text += f"   {item['description']}\n"
-            shop_text += f"   Effect: {item['effect']} (+{item['effect_value']})\n\n"
+            shop_text += f"   {item['description']}\n\n"
         
         shop_text += "To purchase an item, use /buy <item_id>"
         await message.reply_text(shop_text)
@@ -94,30 +88,6 @@ def register_handlers(app):
             await message.reply_text("Item purchased successfully! Check your inventory with /profile")
         else:
             await message.reply_text("Purchase failed. Make sure you have enough balance and the item ID is correct.")
-
-    @app.on_message(filters.command("quests"))
-    async def quests_command(client, message):
-        user_id = message.from_user.id
-        quests = get_daily_quests(user_id)
-        
-        quests_text = "📋 Daily Quests:\n\n"
-        for quest in quests:
-            quests_text += f"🎯 {quest['name']}\n"
-            quests_text += f"   {quest['description']}\n"
-            quests_text += f"   Reward: ₹{quest['reward']}\n\n"
-        
-        quests_text += "Complete a quest using /complete_quest <quest_id>"
-        await message.reply_text(quests_text)
-
-    @app.on_message(filters.command("complete_quest"))
-    async def complete_quest_command(client, message):
-        user_id = message.from_user.id
-        quest_id = message.text.split()[-1]
-        
-        if complete_quest(user_id, quest_id):
-            await message.reply_text("Quest completed successfully! Your reward has been added to your balance.")
-        else:
-            await message.reply_text("Failed to complete the quest. Make sure the quest ID is correct and you haven't already completed it.")
 
     # ... (keep all other existing handlers)
 
