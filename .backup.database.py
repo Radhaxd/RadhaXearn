@@ -15,9 +15,7 @@ def create_user(user_id):
         'user_id': user_id,
         'balance': 0,
         'referrals': [],
-        'joined_date': datetime.now(),
-        'last_bonus_claim': None,
-        'consecutive_bonus_days': 0
+        'joined_date': datetime.now()
     }
     users_collection.insert_one(user)
 
@@ -37,18 +35,5 @@ def get_leaderboard():
         {'$limit': 10}
     ]
     return list(users_collection.aggregate(pipeline))
-
-def update_user_bonus_claim(user_id, bonus_amount):
-    today = datetime.now().date()
-    users_collection.update_one(
-        {'user_id': user_id},
-        {
-            '$set': {
-                'last_bonus_claim': datetime.now(),
-                'consecutive_bonus_days': bonus_amount
-            },
-            '$inc': {'balance': bonus_amount}
-        }
-    )
 
 # Add more database operations as needed
