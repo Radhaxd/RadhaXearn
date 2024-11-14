@@ -11,6 +11,3 @@ MONGO_URI = "YOUR_MONGODB_CONNECTION_STRING"
 MINIMUM_WITHDRAWAL = 20  # Minimum balance required for withdrawal
 REFERRAL_BONUS = 4  # Amount earned per referral
 REQUIRED_CHANNELS = ["@channel1", "@channel2"]  # Channels users must join
-
-# Admin settings
-ADMIN_USER_IDS = [12345, 67890]  # Replace with actual admin user IDs
