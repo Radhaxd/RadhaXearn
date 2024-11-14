@@ -7,7 +7,6 @@ client = MongoClient(MONGO_URI)
 db = client['refer_earn_bot']
 users_collection = db['users']
 tasks_collection = db['tasks']
-shop_items_collection = db['shop_items']
 
 def get_user(user_id):
     return users_collection.find_one({'user_id': user_id})
@@ -22,8 +21,7 @@ def create_user(user_id):
         'consecutive_bonus_days': 0,
         'level': 1,
         'xp': 0,
-        'completed_tasks': [],
-        'inventory': []
+        'completed_tasks': []
     }
     users_collection.insert_one(user)
 
@@ -64,6 +62,7 @@ def add_xp(user_id, xp_amount):
         return_document=True
     )
     
+    # Check if user should level up
     new_level = (user['xp'] // 100) + 1  # Level up every 100 XP
     if new_level > user['level']:
         users_collection.update_one(
@@ -81,28 +80,5 @@ def complete_task(user_id, task_id):
         {'user_id': user_id},
         {'$addToSet': {'completed_tasks': task_id}}
     )
-
-def get_shop_items():
-    return list(shop_items_collection.find())
-
-def purchase_item(user_id, item_id):
-    item = shop_items_collection.find_one({'_id': item_id})
-    user = get_user(user_id)
-    
-    if not item or user['balance'] < item['price']:
-        return False
-    
-    users_collection.update_one(
-        {'user_id': user_id},
-        {
-            '$inc': {'balance': -item['price']},
-            '$push': {'inventory': item['name']}
-        }
-    )
-    return True
-
-def get_user_inventory(user_id):
-    user = get_user(user_id)
-    return user.get('inventory', [])
 
 # Add more database operations as needed
