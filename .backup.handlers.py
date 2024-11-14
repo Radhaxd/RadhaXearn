@@ -1,12 +1,11 @@
 
 from pyrogram import filters
-from config import REFERRAL_BONUS, MINIMUM_WITHDRAWAL
+from config import REFERRAL_BONUS
 from database import (
     get_user, create_user, update_user_balance, 
-    get_user_referrals, get_leaderboard, update_user_bonus_claim
+    get_user_referrals, get_leaderboard
 )
 from utils import check_user_joined_channels, generate_referral_link
-from datetime import datetime, timedelta
 
 def register_handlers(app):
     @app.on_message(filters.command("start"))
@@ -65,33 +64,4 @@ def register_handlers(app):
         
         await message.reply_text(leaderboard_text)
 
-    @app.on_message(filters.command("withdraw"))
-    async def withdraw_command(client, message):
-        user_id = message.from_user.id
-        user = get_user(user_id)
-        
-        if user['balance'] < MINIMUM_WITHDRAWAL:
-            await message.reply_text(f"You need a minimum balance of ₹{MINIMUM_WITHDRAWAL} to withdraw.")
-            return
-        
-        # Here you would implement the actual withdrawal process
-        # For now, we'll just simulate it
-        update_user_balance(user_id, 0)  # Reset balance to 0 after withdrawal
-        await message.reply_text(f"Withdrawal of ₹{user['balance']} processed successfully!")
-
-    @app.on_message(filters.command("bonus"))
-    async def bonus_command(client, message):
-        user_id = message.from_user.id
-        user = get_user(user_id)
-        
-        if 'last_bonus_claim' not in user or user['last_bonus_claim'].date() < datetime.now().date():
-            bonus_amount = min(7, user.get('consecutive_bonus_days', 0) + 1)
-            new_balance = user['balance'] + bonus_amount
-            update_user_balance(user_id, new_balance)
-            update_user_bonus_claim(user_id, bonus_amount)
-            await message.reply_text(f"You've claimed your daily bonus of ₹{bonus_amount}!")
-        else:
-            time_until_next = timedelta(days=1) - (datetime.now() - user['last_bonus_claim'])
-            await message.reply_text(f"You've already claimed your bonus today. Next bonus available in {time_until_next.seconds // 3600} hours.")
-
-    # Add more handlers as needed
+    # Add more handlers for withdraw, bonus, etc.
