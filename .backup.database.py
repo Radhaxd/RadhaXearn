@@ -1,15 +1,13 @@
 
 from pymongo import MongoClient
-from datetime import datetime, timedelta
+from datetime import datetime
 from config import MONGO_URI
-import random
 
 client = MongoClient(MONGO_URI)
 db = client['refer_earn_bot']
 users_collection = db['users']
 tasks_collection = db['tasks']
 shop_items_collection = db['shop_items']
-quests_collection = db['quests']
 
 def get_user(user_id):
     return users_collection.find_one({'user_id': user_id})
@@ -25,10 +23,7 @@ def create_user(user_id):
         'level': 1,
         'xp': 0,
         'completed_tasks': [],
-        'inventory': [],
-        'active_effects': {},
-        'last_quest_refresh': None,
-        'current_quests': []
+        'inventory': []
     }
     users_collection.insert_one(user)
 
@@ -63,13 +58,9 @@ def update_user_bonus_claim(user_id, bonus_amount):
     )
 
 def add_xp(user_id, xp_amount):
-    user = get_user(user_id)
-    xp_multiplier = user['active_effects'].get('xp_booster', 1)
-    total_xp = xp_amount * xp_multiplier
-    
     user = users_collection.find_one_and_update(
         {'user_id': user_id},
-        {'$inc': {'xp': total_xp}},
+        {'$inc': {'xp': xp_amount}},
         return_document=True
     )
     
@@ -80,7 +71,7 @@ def add_xp(user_id, xp_amount):
             {'$set': {'level': new_level}}
         )
     
-    return new_level, total_xp
+    return new_level
 
 def get_tasks():
     return list(tasks_collection.find())
@@ -105,8 +96,7 @@ def purchase_item(user_id, item_id):
         {'user_id': user_id},
         {
             '$inc': {'balance': -item['price']},
-            '$push': {'inventory': item['name']},
-            '$set': {f'active_effects.{item["effect"]}': item['effect_value']}
+            '$push': {'inventory': item['name']}
         }
     )
     return True
@@ -114,42 +104,5 @@ def purchase_item(user_id, item_id):
 def get_user_inventory(user_id):
     user = get_user(user_id)
     return user.get('inventory', [])
-
-def get_daily_quests(user_id):
-    user = get_user(user_id)
-    now = datetime.now()
-    
-    if user['last_quest_refresh'] is None or (now - user['last_quest_refresh']).days >= 1:
-        # Generate new quests
-        all_quests = list(quests_collection.find())
-        daily_quests = random.sample(all_quests, min(3, len(all_quests)))
-        
-        users_collection.update_one(
-            {'user_id': user_id},
-            {
-                '$set': {
-                    'last_quest_refresh': now,
-                    'current_quests': daily_quests
-                }
-            }
-        )
-        return daily_quests
-    else:
-        return user['current_quests']
-
-def complete_quest(user_id, quest_id):
-    user = get_user(user_id)
-    quest = next((q for q in user['current_quests'] if q['_id'] == quest_id), None)
-    
-    if quest:
-        users_collection.update_one(
-            {'user_id': user_id},
-            {
-                '$pull': {'current_quests': {'_id': quest_id}},
-                '$inc': {'balance': quest['reward']}
-            }
-        )
-        return True
-    return False
 
 # Add more database operations as needed
