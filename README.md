@@ -47,7 +47,7 @@ python main.py
 - Simple mini-game
 - User profiles
 - Shop system with inventory and item effects
-- Daily quest system
+- Daily quest system with automatic progress tracking
 
 ## Admin Commands
 
@@ -55,6 +55,10 @@ python main.py
 - `/check_balance <user_id>`: Check a user's balance
 - `/set_balance <user_id> <new_balance>`: Set a user's balance
 - `/broadcast <message>`: Send a message to all users
+- `/add_quest <name> <description> <reward> <type> <goal>`: Add a new quest
+- `/remove_quest <quest_id>`: Remove a quest
+- `/add_shop_item <name> <description> <price> <effect> <effect_value>`: Add a new shop item
+- `/remove_shop_item <item_id>`: Remove a shop item
 
 ## User Commands
 
@@ -71,7 +75,6 @@ python main.py
 - `/shop`: Browse available items in the shop
 - `/buy <item_id>`: Purchase an item from the shop
 - `/quests`: View daily quests
-- `/complete_quest <quest_id>`: Complete a daily quest
 
 ## Contributing
 
