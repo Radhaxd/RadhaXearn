@@ -152,17 +152,4 @@ def complete_quest(user_id, quest_id):
         return True
     return False
 
-def update_quest_progress(user_id, quest_type, progress):
-    user = get_user(user_id)
-    for quest in user['current_quests']:
-        if quest['type'] == quest_type:
-            new_progress = quest.get('progress', 0) + progress
-            if new_progress >= quest['goal']:
-                complete_quest(user_id, quest['_id'])
-            else:
-                users_collection.update_one(
-                    {'user_id': user_id, 'current_quests._id': quest['_id']},
-                    {'$set': {'current_quests.$.progress': new_progress}}
-                )
-
 # Add more database operations as needed
