@@ -3,12 +3,10 @@ from pyrogram import filters
 from config import REFERRAL_BONUS, MINIMUM_WITHDRAWAL
 from database import (
     get_user, create_user, update_user_balance, 
-    get_user_referrals, get_leaderboard, update_user_bonus_claim,
-    add_xp, get_tasks, complete_task
+    get_user_referrals, get_leaderboard, update_user_bonus_claim
 )
 from utils import check_user_joined_channels, generate_referral_link
 from datetime import datetime, timedelta
-import random
 
 def register_handlers(app):
     @app.on_message(filters.command("start"))
@@ -36,8 +34,6 @@ def register_handlers(app):
             f"💰 Balance: ₹{user['balance']}\n"
             f"💰 Per Referral: ₹{REFERRAL_BONUS} UPI Cash\n"
             f"✨ Your Referral Link: {referral_link}\n\n"
-            f"🏆 Your Level: {user['level']}\n"
-            f"🌟 XP: {user['xp']}\n\n"
             "Share with friends and family to earn referral bonuses and grow your balance!"
         )
 
@@ -97,53 +93,5 @@ def register_handlers(app):
         else:
             time_until_next = timedelta(days=1) - (datetime.now() - user['last_bonus_claim'])
             await message.reply_text(f"You've already claimed your bonus today. Next bonus available in {time_until_next.seconds // 3600} hours.")
-
-    @app.on_message(filters.command("tasks"))
-    async def tasks_command(client, message):
-        user_id = message.from_user.id
-        user = get_user(user_id)
-        tasks = get_tasks()
-        
-        tasks_text = "📋 Available Tasks:\n\n"
-        for task in tasks:
-            status = "✅ Completed" if task['_id'] in user['completed_tasks'] else "⏳ Pending"
-            tasks_text += f"{task['name']}: {task['description']} - {status}\n"
-        
-        await message.reply_text(tasks_text)
-
-    @app.on_message(filters.command("complete_task"))
-    async def complete_task_command(client, message):
-        user_id = message.from_user.id
-        task_id = message.text.split()[-1]
-        
-        complete_task(user_id, task_id)
-        new_level = add_xp(user_id, 50)  # Add 50 XP for completing a task
-        
-        await message.reply_text(f"Task completed! You've earned 50 XP.\nYour new level is: {new_level}")
-
-    @app.on_message(filters.command("play"))
-    async def play_game_command(client, message):
-        user_id = message.from_user.id
-        user = get_user(user_id)
-        
-        # Simple number guessing game
-        number = random.randint(1, 10)
-        await message.reply_text("I'm thinking of a number between 1 and 10. Can you guess it?")
-        
-        @app.on_message(filters.user(user_id) & filters.text)
-        async def guess_handler(client, message):
-            try:
-                guess = int(message.text)
-                if guess == number:
-                    reward = random.randint(1, 5)
-                    new_balance = user['balance'] + reward
-                    update_user_balance(user_id, new_balance)
-                    new_level = add_xp(user_id, 10)
-                    await message.reply_text(f"Congratulations! You guessed correctly.\nYou've won ₹{reward} and 10 XP!\nYour new level is: {new_level}")
-                else:
-                    await message.reply_text(f"Sorry, that's not correct. The number was {number}. Try again!")
-                app.remove_handler(guess_handler)
-            except ValueError:
-                await message.reply_text("Please enter a valid number between 1 and 10.")
 
     # Add more handlers as needed
