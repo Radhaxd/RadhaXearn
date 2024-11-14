@@ -1,6 +1,5 @@
 
 from pymongo import MongoClient
-from datetime import datetime
 from config import MONGO_URI
 
 client = MongoClient(MONGO_URI)
